@@ -1,0 +1,6 @@
+# Docker services Check
+
+This is a basic Docker services check for Check_MK/OMD.
+
+It currently only monitors count of running instances and replicas count,
+agent also returns container id, image and also command (if set).

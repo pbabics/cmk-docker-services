@@ -1,0 +1,62 @@
+#!/usr/bin/python
+#
+# This is free software;  you can redistribute it and/or modify it
+# under the  terms of the  GNU General Public License  as published by
+# the Free Software Foundation in version 3.  This test is distributed
+# in the hope that it will be useful, but WITHOUT ANY WARRANTY;  with-
+# out even the implied warranty of  MERCHANTABILITY  or  FITNESS FOR A
+# PARTICULAR PURPOSE. See the  GNU General Public License for more de-
+# ails.  You should have  received  a copy of the  GNU  General Public
+# License along with GNU Make; see the file  COPYING.  If  not,  write
+# to the Free Software Foundation, Inc., 51 Franklin St,  Fifth Floor,
+# Boston, MA 02110-1301 USA.
+#
+docker_services_default_levels = {
+  "runningInstances" : (0, 0),
+#  "replicas": (None, None),
+}
+
+def inventory_docker_services(info):
+  inventory = []
+  # terrible news, info is an array of whitespace-separated strings.
+  # Plugin sends tab-separated info:
+  # name state consumers messages messages_ready
+  for line in info:
+    name=line[1]
+    inventory.append((name, docker_services_default_levels))
+  return inventory
+
+def check_docker_services(item, params, info):
+  for line in info:
+    if line[1] == item:
+      msg = ""
+      state = 0
+      perf = []
+      
+      rwarn,rcrit = params['runningInstances']
+      warn, crit = params['replicas']
+
+      runningInstances=int(line[2])
+      replicas=int(line[3])
+
+      if runningInstances < rcrit:
+        state = 2
+        qstate = 'CRIT'
+      elif runningInstances < rwarn:
+        state = 1
+        qstate = 'WARN'
+     
+      msg += "State: %s, " % qstate
+      msg += "Running instances: %d / %d" % (runningInstances,replicas)
+    
+      perf.append(("runningInstances", runningInstances, warn, crit))
+#      perf.append(("replicas", replicas, warn, crit))
+      return state, msg, perf
+
+check_info["docker_services"] = {
+  'check_function':            check_docker_services,
+  'inventory_function':        inventory_docker_services,
+  'service_description':       'Docker %s Service Status',
+  'has_perfdata':              True,
+  'group':                     'docker_services',
+}

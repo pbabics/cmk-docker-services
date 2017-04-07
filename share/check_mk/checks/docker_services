@@ -34,11 +34,12 @@ def check_docker_services(item, params, info):
       perf = []
       
       rwarn,rcrit = params['runningInstances']
-      warn, crit = params['replicas']
+      #warn, crit = params['replicas']
 
       runningInstances=int(line[2])
       replicas=int(line[3])
 
+      qstate = 'OK'
       if runningInstances < rcrit:
         state = 2
         qstate = 'CRIT'
@@ -49,7 +50,7 @@ def check_docker_services(item, params, info):
       msg += "State: %s, " % qstate
       msg += "Running instances: %d / %d" % (runningInstances,replicas)
     
-      perf.append(("runningInstances", runningInstances, warn, crit))
+      perf.append(("runningInstances", runningInstances, rwarn, rcrit))
 #      perf.append(("replicas", replicas, warn, crit))
       return state, msg, perf
 

@@ -35,5 +35,5 @@ register_check_parameters(
     ),
     TextAscii( title=_("Service Name"),
     help=_("The name of the service")),
-    "first",
+    "dict",
 )
